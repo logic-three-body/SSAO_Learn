@@ -63,8 +63,8 @@ Shader "ImageEffect/SSAO"
 		//采样获得深度值和法线值
 		float3 viewNormal;
 		float linear01Depth;
-		float4 depthnormal = tex2D(_CameraDepthNormalsTexture,i.uv);
-		DecodeDepthNormal(depthnormal,linear01Depth,viewNormal);
+		float4 depthnormal = tex2D(_CameraDepthNormalsTexture,i.uv);//uv属于屏幕空间（当前渲染图像）
+		DecodeDepthNormal(depthnormal,linear01Depth,viewNormal);//解码数据，获取采样后深度值和法线值
 
 		//获取像素相机屏幕坐标位置
 		float3 viewPos = linear01Depth * i.viewVec;
