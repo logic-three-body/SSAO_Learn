@@ -90,6 +90,26 @@ float3 viewPos = linear01Depth * i.viewVec;//获取像素相机屏幕坐标位�
 */
 ```
 
+### 构建法向量正交基
+
+![image-20210830195602464](https://i.loli.net/2021/08/30/DnRfS2CUAs647eY.png)
+
+```C
+//Step1 设置法向量
+//获取像素相机屏幕法线，法相z方向相对于相机为负（所以 需要乘以-1置反），并处理成单位向量
+viewNormal = normalize(viewNormal) * float3(1, 1, -1);
+//Step2 randvec法线半球的随机向量(用于构建随机的正交基，而非所有样本正交基一致)，此处先设置为统一（后面优化会改成随机）
+float3 randvec = normalize(float3(1,1,1));
+//Step3 求切向量 利用函数cross叉积求负切向量
+/*
+Gramm-Schimidt处理创建正交基
+法线&切线&副切线构成的坐标空间
+*/
+float3 tangent = normalize(randvec - viewNormal * dot(randvec, viewNormal));
+float3 bitangent = cross(viewNormal, tangent);
+float3x3 TBN = float3x3(tangent, bitangent, viewNormal);
+```
+
 
 
 ### 改进

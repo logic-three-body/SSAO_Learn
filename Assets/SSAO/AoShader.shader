@@ -24,6 +24,9 @@ Shader "ImageEffect/SSAO"
 
 	#define MAX_SAMPLE_KERNEL_COUNT 64
 
+	float3 _randomVec;
+	bool _isRandom;
+
 	sampler2D _MainTex;
 	//获取深度法线图
 	sampler2D _CameraDepthNormalsTexture;
@@ -74,18 +77,24 @@ Shader "ImageEffect/SSAO"
 		//获取像素相机屏幕坐标位置
 		float3 viewPos = linear01Depth * i.viewVec;
 
-		//获取像素相机屏幕法线，法相z方向相对于相机为负（so 需要乘以-1置反），并处理成单位向量
+		//获取像素相机屏幕法线，法相z方向相对于相机为负（所以 需要乘以-1置反），并处理成单位向量
 		viewNormal = normalize(viewNormal) * float3(1, 1, -1);
 
 		//铺平纹理
 		float2 noiseScale = _ScreenParams.xy / 4.0;
 		float2 noiseUV = i.uv * noiseScale;
+		float3 randvec = normalize(float3(1,1,1));
 		//randvec法线半球的随机向量
-		float3 randvec = tex2D(_NoiseTex,noiseUV).xyz;
+		if(_isRandom)
+			randvec = normalize(_randomVec);
+		else
+			randvec = tex2D(_NoiseTex,noiseUV).xyz;
+		//float3 randvec = normalize(float3(1,1,1));
+		//float3 randvec = tex2D(_NoiseTex,noiseUV).xyz;
 		//Gramm-Schimidt处理创建正交基
 		//法线&切线&副切线构成的坐标空间
-		float3 tangent = normalize(randvec - viewNormal * dot(randvec,viewNormal));
-		float3 bitangent = cross(viewNormal,tangent);
+		float3 tangent = normalize(randvec - viewNormal * dot(randvec,viewNormal));//求切向量 
+		float3 bitangent = cross(viewNormal,tangent);//利用函数cross叉积求负切向量
 		float3x3 TBN = float3x3(tangent,bitangent,viewNormal);
 
 		//采样核心

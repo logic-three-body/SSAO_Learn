@@ -27,6 +27,13 @@ public class ImageEffet : MonoBehaviour
     public float bilaterFilterStrength = 0.2f;
     public bool OnlyShowAO = false;
 
+    public Vector3 RandomVec;//自己调RandomVector debug用
+
+    [Range(0, 1)]
+    public int isRandom = 0;//决定是自己调RandomVector还是采用随机RandomVector
+
+
+
     public enum SSAOPassName
     {
         GenerateAO = 0,
@@ -41,9 +48,11 @@ public class ImageEffet : MonoBehaviour
         ssaoMaterial = new Material(shader);
     }
 
+    //获取深度&法线缓存数据
     private void Start()
     {
         cam = this.GetComponent<Camera>();
+        //相机渲染模式为带深度和法线
         cam.depthTextureMode = cam.depthTextureMode | DepthTextureMode.DepthNormals;
     }
 
@@ -62,6 +71,8 @@ public class ImageEffet : MonoBehaviour
         ssaoMaterial.SetFloat("_SampleKeneralRadius",sampleKeneralRadius);
         ssaoMaterial.SetFloat("_DepthBiasValue",depthBiasValue);
         ssaoMaterial.SetTexture("_NoiseTex", Nosie);
+        ssaoMaterial.SetVector("_randomVec", RandomVec);//传入随机向量      
+        ssaoMaterial.SetInt("_isRandom", isRandom);//决定使用随机分布产生随机向量还是使用自己调节的固定随机向量
         Graphics.Blit(source, aoRT, ssaoMaterial,(int)SSAOPassName.GenerateAO);
         //Blur
         RenderTexture blurRT = RenderTexture.GetTemporary(rtW,rtH,0);

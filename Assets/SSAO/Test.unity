@@ -769,6 +769,8 @@ MonoBehaviour:
   BlurRadius: 3
   bilaterFilterStrength: 0.2
   OnlyShowAO: 1
+  RandomVec: {x: 1, y: 1, z: 1}
+  isRandom: 0
 --- !u!81 &2084429445
 AudioListener:
   m_ObjectHideFlags: 0
