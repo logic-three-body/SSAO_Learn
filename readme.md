@@ -28,7 +28,7 @@
 
 ## 算法实现
 
-获取深度&法线缓存数据
+### 获取深度&法线缓存数据
 
 C#:
 
@@ -58,11 +58,36 @@ DecodeDepthNormal(depthnormal, linear01Depth, viewNormal);    //解码数据，�
 
 //...other code
 
-inline void DecodeDepthNormal( float4 enc, out float depth, out float3 normal )
+inline void DecodeDepthNormal( float4 enc, out float depth, out float3 normal )//in UnityCG.cginc 
 {
     depth = DecodeFloatRG (enc.zw);
     normal = DecodeViewNormalStereo (enc);
 }
+```
+
+### 重建相机空间坐标
+
+参考：[Unity从深度缓冲重建世界空间位置](https://zhuanlan.zhihu.com/p/92315967)
+
+从[NDC](https://zhuanlan.zhihu.com/p/65969162)（标准化设备坐标）空间重建
+
+![image-20210830160737698](https://i.loli.net/2021/08/30/vPQ2VEtriwUkKWo.png)
+
+```c
+//step1:计算样本屏幕坐标 vertex shader
+float4 screenPos = ComputeScreenPos(o.vertex);//屏幕纹理坐标 
+//step2: 转换至NDC空间 vertex shader
+float4 ndcPos = (screenPos / screenPos.w) * 2 - 1;// NDC position
+//step3: 计算相机空间中至远屏幕方向 vertex shader
+float3 clipVec = float3(ndcPos.x, ndcPos.y, 1.0) * _ProjectionParams.z; //_ProjectionParams.z -> 相机远平面
+//step4:矩阵变换至相机空间中样本相对相机的方向
+o.viewVec = mul(unity_CameraInvProjection, clipVec.xyzz).xyz;
+//step5:重建相机空间样本坐标 fragment shader
+float3 viewPos = linear01Depth * i.viewVec;//获取像素相机屏幕坐标位置
+
+/*
+屏幕空间->NDC空间->裁剪空间-逆投影矩阵->观察（相机）空间
+*/
 ```
 
 

@@ -46,11 +46,16 @@ Shader "ImageEffect/SSAO"
 		//https://zhuanlan.zhihu.com/p/92315967
 		//屏幕纹理坐标
 		float4 screenPos = ComputeScreenPos(o.vertex);
-		// NDC position
+		// NDC position 转换至NDC空间
 		float4 ndcPos = (screenPos / screenPos.w) * 2 - 1;
 		// 计算至远屏幕方向
-		float3 clipVec = float3(ndcPos.x, ndcPos.y, 1.0) * _ProjectionParams.z;
+		float3 clipVec = float3(ndcPos.x, ndcPos.y, 1.0) * _ProjectionParams.z;//_ProjectionParams.z -> 相机远平面
+		//矩阵变换至相机空间中样本相对相机的方向
 		o.viewVec = mul(unity_CameraInvProjection, clipVec.xyzz).xyz;
+
+		/*
+		屏幕空间->NDC空间->裁剪空间-逆投影矩阵->观察（相机）空间
+		*/
         return o;
     }
 
