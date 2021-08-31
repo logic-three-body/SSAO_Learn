@@ -102,7 +102,7 @@ Shader "ImageEffect/SSAO"
 		int sampleCount = _SampleKernelCount;//每个像素点上的采样次数
 		//https://blog.csdn.net/qq_39300235/article/details/102460405
 		for(int i=0;i<sampleCount;i++){
-			//随机向量，转化至法线切线空间中
+			//随机向量，转化至法线切线空间中 得到此法线半球（TBN空间）的随机向量
 			float3 randomVec = mul(_SampleKernelArray[i].xyz,TBN);
 			
 			//ao权重

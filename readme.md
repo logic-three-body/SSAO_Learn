@@ -98,7 +98,7 @@ float3 viewPos = linear01Depth * i.viewVec;//获取像素相机屏幕坐标位�
 //Step1 设置法向量
 //获取像素相机屏幕法线，法相z方向相对于相机为负（所以 需要乘以-1置反），并处理成单位向量
 viewNormal = normalize(viewNormal) * float3(1, 1, -1);
-//Step2 randvec法线半球的随机向量(用于构建随机的正交基，而非所有样本正交基一致)，此处先设置为统一（后面优化会改成随机）
+//Step2 randvec法线半球的随机向量(用于构建随机的正交基，而非所有样本正交基一致)，此处先设置为统一变量（后面优化会改成随机）
 float3 randvec = normalize(float3(1,1,1));
 //Step3 求切向量 利用函数cross叉积求负切向量
 /*
@@ -110,7 +110,67 @@ float3 bitangent = cross(viewNormal, tangent);
 float3x3 TBN = float3x3(tangent, bitangent, viewNormal);
 ```
 
+关于TBN：[ 切线空间（TBN） ---- 聊聊图形学中的矩阵运算](https://blog.csdn.net/chishanxu3325/article/details/100858834)	unity入门精要4.7 法线变换
 
+![image-20210830203753569](https://i.loli.net/2021/08/30/yCk1q2nGSv3I4Dp.png)
+
+![image-20210830210311596](https://i.loli.net/2021/08/30/BAV7632wdWvHemx.png)
+
+### AO采样
+
+C# 生成随机样本
+
+```c#
+private void GenerateAOSampleKernel()
+{
+//...other code...
+    for (int i = 0; i < SampleKernelCount; i++) //在此生成随机样本
+    {
+        var vec = new Vector4(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(0, 1.0f), 1.0f);
+        vec.Normalize();
+        var scale = (float)i / SampleKernelCount;
+        //使分布符合二次方程的曲线
+        scale = Mathf.Lerp(0.01f, 1.0f, scale * scale);
+        vec *= scale;
+        sampleKernelList.Add(vec);
+    }
+}
+```
+
+shader 比较法线半球中样本深度与观察点深度以确定AO强度
+
+```c
+for (int i = 0; i < sampleCount; i++)
+{
+    //随机向量，转化至法线切线空间中 得到此法线半球的随机向量
+    float3 randomVec = mul(_SampleKernelArray[i].xyz, TBN);
+
+    //ao权重
+    float weight = smoothstep(0, 0.2, length(randomVec.xy));
+    
+    //计算随机法线半球后的向量
+    float3 randomPos = viewPos + randomVec * _SampleKeneralRadius;
+    //转换到屏幕坐标
+    float3 rclipPos = mul((float3x3)unity_CameraProjection, randomPos);
+    float2 rscreenPos = (rclipPos.xy / rclipPos.z) * 0.5 + 0.5;
+/*
+观察（相机）空间->-投影矩阵->裁剪空间->屏幕空间
+*/
+    
+    float randomDepth;
+    float3 randomNormal;
+    float4 rcdn = tex2D(_CameraDepthNormalsTexture, rscreenPos);
+    DecodeDepthNormal(rcdn, randomDepth, randomNormal);
+
+    //采样点的深度值和样本深度比对前后关系
+    ao += (randomDepth>=linear01Depth)?1.0:0.0;//是否有遮挡关系???【存疑】
+    //认为判断条件应该为(randomDepth<=linear01Depth)，如果随机样本离相机近，应该深度小
+}
+```
+
+![image-20210830215815116](https://i.loli.net/2021/08/30/ApfTeJ9qPUWVl74.png)
+
+![image-20210830221124849](https://i.loli.net/2021/08/30/LgtuxlAMj4VfJnm.png)
 
 ### 改进
 

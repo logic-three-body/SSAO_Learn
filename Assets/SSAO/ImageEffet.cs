@@ -96,12 +96,13 @@ public class ImageEffet : MonoBehaviour
         RenderTexture.ReleaseTemporary(blurRT);
     }
 
+    //refer:https://blog.csdn.net/qq_39300235/article/details/102460405
     private void GenerateAOSampleKernel()
     {
         if (SampleKernelCount == sampleKernelList.Count)
             return;
         sampleKernelList.Clear();
-        for (int i = 0; i < SampleKernelCount; i++)
+        for (int i = 0; i < SampleKernelCount; i++)//在此生成随机样本
         {
             var vec = new Vector4(Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f), Random.Range(0, 1.0f), 1.0f);
             vec.Normalize();
