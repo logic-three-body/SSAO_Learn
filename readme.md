@@ -487,7 +487,29 @@ float weight = smoothstep(0,0.2,length(randomVec.xy));
 
 ![image-20210904204445674](https://i.loli.net/2021/09/04/HpkOgmsV6TB7ydz.png)
 
+## 对比
+
+关闭SSAO
+
+![image-20210904204743764](https://i.loli.net/2021/09/04/2Tp95EDAuBOY3HC.png)
+
+开启SSAO
+
+![image-20210904204838364](https://i.loli.net/2021/09/04/W6V32iKSNajgFBh.png)
+
 ## 其他AO方案
+
+### HBAO
+
+### 烘焙lightmap
+
+可生成静态物体见的AO信息，通过Generate Lightmap UVs可以生成第二个纹理坐标数据以存储贴图信息
+
+当然代价是游戏场景要储存额外的贴图信息，以空间换取时间效率
+
+![image-20210904205423265](https://i.loli.net/2021/09/04/kBivugwIZrKcT87.png)
+
+![image-20210904205010036](https://i.loli.net/2021/09/04/ANf1cP5rZGJUejh.png)
 
 ## 备注
 
