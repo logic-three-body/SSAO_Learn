@@ -116,13 +116,13 @@ Shader "ImageEffect/SSAO0"
 
 			float randomDepth;
 			float3 randomNormal;
-			float4 rcdn = tex2D(_CameraDepthNormalsTexture, rscreenPos);
+			float4 rcdn = tex2D(_CameraDepthNormalsTexture, rscreenPos);//随机样本在屏幕的深度和法线信息
 			DecodeDepthNormal(rcdn, randomDepth, randomNormal);
 			
 			//判断累加ao值
 			//采样点的深度值和样本深度比对前后关系
-			//ao += (randomDepth>=linear01Depth)?1.0:0.0;//是否有遮挡关系???【存疑】//老师这里可能笔误了
-			ao += (randomDepth>=linear01Depth)?0.0:1.0;//是否有遮挡关系???【存疑】
+			//ao += (randomDepth>=linear01Depth)?1.0:0.0;//是否有遮挡关系//老师这里可能笔误了
+			ao += (randomDepth>=linear01Depth)?0.0:1.0;//是否有遮挡关系
 		}
 
 		ao = ao/sampleCount;

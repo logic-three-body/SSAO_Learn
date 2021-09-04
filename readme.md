@@ -139,7 +139,7 @@ private void GenerateAOSampleKernel()
 
 shader 比较法线半球中样本深度与观察点深度以确定AO强度
 
-说明：老师这里写的“(randomDepth>=linear01Depth)?1.0:0.0”可能是笔误，这样的遮挡关系变成了随机样本深度比视点深才对遮挡有贡献，实际情况应该是随机样本深度比视点浅即“(randomDepth>=linear01Depth)?0.0:1.0”才对视点遮挡有贡献（可见下列代码和执行截图）
+**说明**：老师这里写的“(randomDepth>=linear01Depth)?1.0:0.0”可能是笔误，这样的遮挡关系变成了随机样本深度比视点深才对遮挡有贡献，实际情况应该是随机样本深度比视点浅即“(randomDepth>=linear01Depth)?0.0:1.0”才对视点遮挡有贡献（可见下列代码和执行截图）
 
 ```c
 for (int i = 0; i < sampleCount; i++)
@@ -296,6 +296,7 @@ Shader "ImageEffect/SSAO0"
 			float randomDepth;
 			float3 randomNormal;
 			float4 rcdn = tex2D(_CameraDepthNormalsTexture, rscreenPos);
+            //随机样本在屏幕的深度和法线信息
 			DecodeDepthNormal(rcdn, randomDepth, randomNormal);
 			
 			//判断累加ao值
@@ -327,9 +328,36 @@ Shader "ImageEffect/SSAO0"
 
 ### 当前AO_Shader执行图：
 
-![image-20210904151720677](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\image-20210904151720677.png)
+(randomDepth>=linear01Depth)?0.0:1.0
+
+![image-20210904151720677](https://i.loli.net/2021/09/04/l8fcPBU69gjDuFC.png)
+
+![image-20210904153809164](https://i.loli.net/2021/09/04/KgtsZL2B9IihDXJ.png)
+
+**！！！若使用(randomDepth>=linear01Depth)?1.0:0.0则产生错误的遮挡关系！！！**
+
+观察下图，结果完全和原来相反，因为遮挡贡献判断反了
+
+![image-20210904154050850](https://i.loli.net/2021/09/04/ekCpvhbuoPL5EVw.png)
+
+![image-20210904154239338](https://i.loli.net/2021/09/04/i9JQudgMXO8EtT4.png)
+
+如下视频，更改随机向量，会看到遮挡关系随之变化
+
+<video src=".\Vedio\randomVec.mp4"></video>
 
 ## 改进
 
+
+
 ## 其他AO方案
 
+## 备注
+
+屏幕空间的算法依赖于深度信息，这里汇总一些对学习求取深度信息的链接
+
+[tex2Dproj和tex2D的区别 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/107627483)
+
+[(11条消息) Unity Shader计算深度并显示_TDC的专栏-CSDN博客](https://blog.csdn.net/ak47007tiger/article/details/102657908?utm_medium=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~default-1.control&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~default-1.control)
+
+[Unity从深度缓冲重建世界空间位置 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/92315967)
