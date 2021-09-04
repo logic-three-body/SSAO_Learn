@@ -37,9 +37,9 @@ public class ImageEffet : MonoBehaviour
 
     public enum SSAOPassName
     {
-        GenerateAO = 0,
-        BilateralFilter = 1,
-        Composite = 2,
+        GenerateAO = 0,//pass0
+        BilateralFilter = 1,//pass1
+        Composite = 2,//pass2
     }
 
     private void Awake()
@@ -84,6 +84,7 @@ public class ImageEffet : MonoBehaviour
         ssaoMaterial.SetVector("_BlurRadius", new Vector4(0, BlurRadius, 0, 0));
         if (OnlyShowAO)
         {
+            //Graphics.Blit(aoRT, destination);
             Graphics.Blit(blurRT, destination, ssaoMaterial, (int)SSAOPassName.BilateralFilter);
         }
         else

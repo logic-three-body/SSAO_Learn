@@ -120,11 +120,9 @@ Shader "ImageEffect/SSAO0"
 			DecodeDepthNormal(rcdn, randomDepth, randomNormal);
 			
 			//判断累加ao值
-			float range = abs(randomDepth - linear01Depth) > _RangeStrength ? 0.0 : 1.0;
-			float selfCheck = randomDepth + _DepthBiasValue < linear01Depth ? 1.0 : 0.0;
-
 			//采样点的深度值和样本深度比对前后关系
-			ao += range * selfCheck * weight;
+			//ao += (randomDepth>=linear01Depth)?1.0:0.0;//是否有遮挡关系???【存疑】//老师这里可能笔误了
+			ao += (randomDepth>=linear01Depth)?0.0:1.0;//是否有遮挡关系???【存疑】
 		}
 
 		ao = ao/sampleCount;
