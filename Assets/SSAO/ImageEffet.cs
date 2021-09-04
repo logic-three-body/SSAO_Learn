@@ -26,7 +26,7 @@ public class ImageEffet : MonoBehaviour
     public int BlurRadius = 2;
     [Range(0, 0.2f)]
     public float bilaterFilterStrength = 0.2f;
-    public bool OnlyShowAO = false;
+   // public bool OnlyShowAO = false;
 
     public Vector3 RandomVec;//自己调RandomVector debug用
 
@@ -34,13 +34,23 @@ public class ImageEffet : MonoBehaviour
     public int isRandom = 0;//决定是自己调RandomVector还是采用随机RandomVector
 
 
-
+    
     public enum SSAOPassName
     {
         GenerateAO = 0,//pass0
         BilateralFilter = 1,//pass1
         Composite = 2,//pass2
     }
+
+    public enum DebugMode
+    {
+        ONLY_AO=0,//仅输出AO
+        BLUR_AO=1,//输出模糊后的AO
+        COMPLETE=2,//完全输出
+        NO_BLUR=3//完全输出但不模糊AO
+    }
+
+    public DebugMode mode;
 
     private void Awake()
     {
@@ -82,14 +92,22 @@ public class ImageEffet : MonoBehaviour
         Graphics.Blit(aoRT, blurRT, ssaoMaterial, (int)SSAOPassName.BilateralFilter);
 
         ssaoMaterial.SetVector("_BlurRadius", new Vector4(0, BlurRadius, 0, 0));
-        if (OnlyShowAO)
+        if (DebugMode.ONLY_AO==mode)
         {
-            //Graphics.Blit(aoRT, destination);
+            Graphics.Blit(aoRT, destination);
+        }
+        else if(DebugMode.BLUR_AO == mode)
+        {
             Graphics.Blit(blurRT, destination, ssaoMaterial, (int)SSAOPassName.BilateralFilter);
+        }
+        else if(DebugMode.COMPLETE == mode)
+        {
+            Graphics.Blit(blurRT, aoRT, ssaoMaterial, (int)SSAOPassName.BilateralFilter);
+            ssaoMaterial.SetTexture("_AOTex", aoRT);
+            Graphics.Blit(source, destination, ssaoMaterial, (int)SSAOPassName.Composite);
         }
         else
         {
-            Graphics.Blit(blurRT, aoRT, ssaoMaterial, (int)SSAOPassName.BilateralFilter);
             ssaoMaterial.SetTexture("_AOTex", aoRT);
             Graphics.Blit(source, destination, ssaoMaterial, (int)SSAOPassName.Composite);
         }
