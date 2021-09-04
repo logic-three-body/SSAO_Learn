@@ -139,8 +139,6 @@ private void GenerateAOSampleKernel()
 
 shader 比较法线半球中样本深度与观察点深度以确定AO强度
 
-**说明**：老师这里写的“(randomDepth>=linear01Depth)?1.0:0.0”可能是笔误，这样的遮挡关系变成了随机样本深度比视点深才对遮挡有贡献，实际情况应该是随机样本深度比视点浅即“(randomDepth>=linear01Depth)?0.0:1.0”才对视点遮挡有贡献（可见下列代码和执行截图）
-
 ```c
 for (int i = 0; i < sampleCount; i++)
 {
@@ -178,6 +176,7 @@ for (int i = 0; i < sampleCount; i++)
 当前版本shader：
 
 ```c
+//https://blog.csdn.net/tianhai110/article/details/5684128?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-7.channel_param&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-7.channel_param
 Shader "ImageEffect/SSAO0"
 {
     Properties
@@ -301,19 +300,31 @@ Shader "ImageEffect/SSAO0"
 			
 			//判断累加ao值
 			//采样点的深度值和样本深度比对前后关系
-			//ao += (randomDepth>=linear01Depth)?1.0:0.0;//是否有遮挡关系//老师这里可能笔误了
-			ao += (randomDepth>=linear01Depth)?0.0:1.0;//是否有遮挡关系
+			ao += (randomDepth>=linear01Depth)?1.0:0.0;
 		}
 
 		ao = ao/sampleCount;
-		ao = max(0.0, 1 - ao * _AOStrength);
 		return float4(ao,ao,ao,1);
-    }	
+    }
+	
+	//应用AO贴图
+	
+	sampler2D _AOTex;
+
+	fixed4 frag_Composite(v2f i) : SV_Target
+	{
+		fixed4 col = tex2D(_MainTex, i.uv);
+		fixed4 ao = tex2D(_AOTex, i.uv);
+		col.rgb *= ao.r;
+		return col;
+	}
+
 	ENDCG
 
     SubShader
     {	
 		Cull Off ZWrite Off ZTest Always
+
 		//Pass 0 : Generate AO 
 		Pass
         {
@@ -322,33 +333,159 @@ Shader "ImageEffect/SSAO0"
             #pragma fragment frag_Ao
             ENDCG
         }
+        //Pass 1 : Composite AO
+		Pass
+		{
+			CGPROGRAM
+			#pragma vertex vert_Ao
+			#pragma fragment frag_Composite
+			ENDCG
+		}
     }
 }
+
 ```
 
 ### 当前AO_Shader执行图：
 
-(randomDepth>=linear01Depth)?0.0:1.0
+(randomDepth>=linear01Depth)?1.0:0.0
+
+
 
 ![image-20210904151720677](https://i.loli.net/2021/09/04/l8fcPBU69gjDuFC.png)
 
 ![image-20210904153809164](https://i.loli.net/2021/09/04/KgtsZL2B9IihDXJ.png)
 
-**！！！若使用(randomDepth>=linear01Depth)?1.0:0.0则产生错误的遮挡关系！！！**
-
-观察下图，结果完全和原来相反，因为遮挡贡献判断反了
-
-![image-20210904154050850](https://i.loli.net/2021/09/04/ekCpvhbuoPL5EVw.png)
-
-![image-20210904154239338](https://i.loli.net/2021/09/04/i9JQudgMXO8EtT4.png)
-
 如下视频，更改随机向量，会看到遮挡关系随之变化
 
 <video src=".\Vedio\randomVec.mp4"></video>
 
+如下视频，更改采样点数量以及采样半径，遮挡关系的变化，采样的样本越多越好，但是采样半径需要适中，过小效果不明显，过大又过于强烈
+
+<video src=".\Vedio\Sample.mp4"></video>
+
 ## 改进
 
+### 增加随机性
 
+上述算法基本概况了SSAO算法的情况，但还有很多优化空间。
+
+首先，我们的随机向量固定太死，结果可能会很生硬，所以我们可以对噪声贴图采样以增加正交基随机性
+
+```css
+//铺平纹理
+float2 noiseScale = _ScreenParams.xy / 4.0;
+float2 noiseUV = i.uv * noiseScale;
+float3 randvec = normalize(float3(1,1,1));
+randvec = tex2D(_NoiseTex,noiseUV).xyz;
+```
+
+<img src="https://i.loli.net/2021/09/04/KfR2HG1xUmwiJDy.png" alt="noise" style="zoom:1000%;" />
+
+![image-20210904165239706](https://i.loli.net/2021/09/04/azRcYbIVoOps4md.png)
+
+### AO累加平滑
+
+#### 范围判断（模型边界）
+
+如下图，在AO图中，天空和屋顶形成遮蔽关系，而这种情况不符合现实
+
+![image-20210904165816812](https://i.loli.net/2021/09/04/oIb7Xx6p1HAJZnB.png)
+
+![image-20210904165844884](https://i.loli.net/2021/09/04/YrBn6AEHtOxD7Gm.png)
+
+原因是如果随机样本在屏幕上对应为背景（天空）区域，深度值和当前着色点相差很大，可能会导致错误的遮挡关系
+
+```c
+float range = abs(randomDepth - linear01Depth) > _RangeStrength ? 0.0 : 1.0;//解决深度差过大（模型边界）
+```
+
+![image-20210904201955772](https://i.loli.net/2021/09/04/Zoef6uASPT93san.png)
+
+此时模型边缘阴影问题消失了
+
+![image-20210904202544334](https://i.loli.net/2021/09/04/nuEScXNeFQgMvdP.png)
+
+#### 自阴影判定
+
+上图我们发现在一些墙面上出现了阴影，而同一平面不会有遮挡关系，这是由于随机点深度值和着色点深度很近，我们可以增加深度偏移
+
+![image-20210904203924922](https://i.loli.net/2021/09/04/d5N9KYCDwgbWArR.png)
+
+```c
+float selfCheck = randomDepth + _DepthBiasValue < linear01Depth ? 1.0 : 0.0;//解决自阴影
+```
+
+![image-20210904203953932](https://i.loli.net/2021/09/04/awpJ4fekA2LcroS.png)
+
+![image-20210904204029173](https://i.loli.net/2021/09/04/KDFSaqxc35WnmjZ.png)
+
+#### AO权重平滑
+
+```c
+//ao权重 
+float weight = smoothstep(0,0.2,length(randomVec.xy));
+```
+
+![image-20210904204214717](https://i.loli.net/2021/09/04/yRTm7rqnkoGYteP.png)
+
+#### 模糊AO贴图
+
+双边滤波或其他滤波方式
+
+```c
+	fixed4 frag_Blur (v2f i) : SV_Target
+	{
+		//_MainTex_TexelSize -> https://forum.unity.com/threads/_maintex_texelsize-whats-the-meaning.110278/
+		float2 delta = _MainTex_TexelSize.xy * _BlurRadius.xy;
+		
+		float2 uv = i.uv;
+		float2 uv0a = i.uv - delta;
+		float2 uv0b = i.uv + delta;	
+		float2 uv1a = i.uv - 2.0 * delta;
+		float2 uv1b = i.uv + 2.0 * delta;
+		float2 uv2a = i.uv - 3.0 * delta;
+		float2 uv2b = i.uv + 3.0 * delta;
+		
+		float3 normal = GetNormal(uv);
+		float3 normal0a = GetNormal(uv0a);
+		float3 normal0b = GetNormal(uv0b);
+		float3 normal1a = GetNormal(uv1a);
+		float3 normal1b = GetNormal(uv1b);
+		float3 normal2a = GetNormal(uv2a);
+		float3 normal2b = GetNormal(uv2b);
+		
+		fixed4 col = tex2D(_MainTex, uv);
+		fixed4 col0a = tex2D(_MainTex, uv0a);
+		fixed4 col0b = tex2D(_MainTex, uv0b);
+		fixed4 col1a = tex2D(_MainTex, uv1a);
+		fixed4 col1b = tex2D(_MainTex, uv1b);
+		fixed4 col2a = tex2D(_MainTex, uv2a);
+		fixed4 col2b = tex2D(_MainTex, uv2b);
+		
+		half w = 0.37004405286;
+		half w0a = CompareNormal(normal, normal0a) * 0.31718061674;
+		half w0b = CompareNormal(normal, normal0b) * 0.31718061674;
+		half w1a = CompareNormal(normal, normal1a) * 0.19823788546;
+		half w1b = CompareNormal(normal, normal1b) * 0.19823788546;
+		half w2a = CompareNormal(normal, normal2a) * 0.11453744493;
+		half w2b = CompareNormal(normal, normal2b) * 0.11453744493;
+		
+		half3 result;
+		result = w * col.rgb;
+		result += w0a * col0a.rgb;
+		result += w0b * col0b.rgb;
+		result += w1a * col1a.rgb;
+		result += w1b * col1b.rgb;
+		result += w2a * col2a.rgb;
+		result += w2b * col2b.rgb;
+		
+		result /= w + w0a + w0b + w1a + w1b + w2a + w2b;
+		return fixed4(result, 1.0);
+	}
+```
+
+![image-20210904204445674](https://i.loli.net/2021/09/04/HpkOgmsV6TB7ydz.png)
 
 ## 其他AO方案
 

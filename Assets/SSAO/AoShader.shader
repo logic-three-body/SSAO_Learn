@@ -102,7 +102,7 @@ Shader "ImageEffect/SSAO"
 		int sampleCount = _SampleKernelCount;//每个像素点上的采样次数
 		//https://blog.csdn.net/qq_39300235/article/details/102460405
 		for(int i=0;i<sampleCount;i++){
-			//随机向量，转化至法线切线空间中 得到此法线半球（TBN空间）的随机向量
+			//随机向量，转化至切线空间中 得到此法线半球（TBN空间）的随机向量
 			float3 randomVec = mul(_SampleKernelArray[i].xyz,TBN);
 			
 			//ao权重
@@ -120,9 +120,11 @@ Shader "ImageEffect/SSAO"
 			DecodeDepthNormal(rcdn, randomDepth, randomNormal);
 			
 			//判断累加ao值
-			float range = abs(randomDepth - linear01Depth) > _RangeStrength ? 0.0 : 1.0;
-			float selfCheck = randomDepth + _DepthBiasValue < linear01Depth ? 1.0 : 0.0;
+			float range = abs(randomDepth - linear01Depth) > _RangeStrength ? 0.0 : 1.0;//解决深度差过大（模型边界）
+			//_DepthBiasValue=0.0;
+			float selfCheck = randomDepth + _DepthBiasValue < linear01Depth ? 1.0 : 0.0;//解决自阴影
 
+			//range=1.0;//for debug
 			//采样点的深度值和样本深度比对前后关系
 			ao += range * selfCheck * weight;
 		}

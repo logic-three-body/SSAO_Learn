@@ -14,21 +14,19 @@ public class ImageEffet : MonoBehaviour
     private List<Vector4> sampleKernelList = new List<Vector4>();
     [Range(0.0001f,10f)]
     public float sampleKeneralRadius = 0.01f;
-    [HideInInspector]
+    
     [Range(0.0001f,1f)]
     public float rangeStrength = 0.001f;
-    [HideInInspector]
+    
     public float depthBiasValue;
-    [HideInInspector]
+
     public Texture Nosie;//噪声贴图
 
     [Range(0, 2)]
     public int DownSample = 0;
 
-    [HideInInspector]
     [Range(1, 4)]
     public int BlurRadius = 2;
-    [HideInInspector]
     [Range(0, 0.2f)]
     public float bilaterFilterStrength = 0.2f;
    // public bool OnlyShowAO = false;

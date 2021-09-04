@@ -121,12 +121,11 @@ Shader "ImageEffect/SSAO0"
 			
 			//判断累加ao值
 			//采样点的深度值和样本深度比对前后关系
-			//ao += (randomDepth>=linear01Depth)?1.0:0.0;//是否有遮挡关系//老师这里可能笔误了
-			ao += (randomDepth>=linear01Depth)?0.0:1.0;//是否有遮挡关系
+			ao += (randomDepth>=linear01Depth)?1.0:0.0;
 		}
 
 		ao = ao/sampleCount;
-		ao = max(0.0, 1 - ao * _AOStrength);
+		ao*=_AOStrength;
 		return float4(ao,ao,ao,1);
     }
 	
