@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ImageEffet : MonoBehaviour
 {
+    public Shader _shader=null;
     private Material ssaoMaterial;
     private Camera cam;
     [Range(0f,1f)]
@@ -44,7 +45,7 @@ public class ImageEffet : MonoBehaviour
     private void Awake()
     {
         var shader = Shader.Find("ImageEffect/SSAO");
-
+        shader = _shader;
         ssaoMaterial = new Material(shader);
     }
 
