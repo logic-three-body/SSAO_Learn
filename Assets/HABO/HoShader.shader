@@ -321,7 +321,8 @@ Shader "ImageEffect/HBAO"
         {
             CGPROGRAM
             #pragma vertex vert_Ao
-            #pragma fragment frag_Ao
+            //#pragma fragment frag_Ao
+			#pragma fragment frag_HABO
             ENDCG
         }
 		//Pass 1 : Bilateral Filter Blur

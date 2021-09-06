@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ImageEffet : MonoBehaviour
+public class HABOEFECT : MonoBehaviour
 {
     public Shader _shader=null;
     private Material ssaoMaterial;
@@ -36,8 +36,13 @@ public class ImageEffet : MonoBehaviour
     [Range(0, 1)]
     public int isRandom = 0;//决定是自己调RandomVector还是采用随机RandomVector
 
+    //HBAO
+    public float _MaxPixelRadius;
+    public float _RayMarchingStep;
+    public float _RayAngleStep;
+    public float _AngleBiasValue;
+    public float _AORadius;
 
-    
     public enum SSAOPassName
     {
         GenerateAO = 0,//pass0
@@ -84,6 +89,11 @@ public class ImageEffet : MonoBehaviour
         ssaoMaterial.SetFloat("_SampleKernelCount", sampleKernelList.Count);
         ssaoMaterial.SetFloat("_SampleKeneralRadius",sampleKeneralRadius);
         ssaoMaterial.SetFloat("_DepthBiasValue",depthBiasValue);
+        ssaoMaterial.SetFloat("_MaxPixelRadius", _MaxPixelRadius);
+        ssaoMaterial.SetFloat("_RayAngleStep", _RayAngleStep);
+        ssaoMaterial.SetFloat("_AngleBiasValue", _AngleBiasValue);
+        ssaoMaterial.SetFloat("_AORadius", _AORadius);
+
         ssaoMaterial.SetTexture("_NoiseTex", Nosie);
         ssaoMaterial.SetVector("_randomVec", RandomVec);//传入随机向量      
         ssaoMaterial.SetInt("_isRandom", isRandom);//决定使用随机分布产生随机向量还是使用自己调节的固定随机向量

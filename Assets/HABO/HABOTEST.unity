@@ -821,7 +821,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2084429447}
   - component: {fileID: 2084429446}
-  - component: {fileID: 2084429445}
   - component: {fileID: 2084429448}
   - component: {fileID: 2084429444}
   m_Layer: 0
@@ -855,15 +854,12 @@ MonoBehaviour:
   bilaterFilterStrength: 0.2
   RandomVec: {x: 0, y: 0, z: 0}
   isRandom: 0
+  _MaxPixelRadius: 0
+  _RayMarchingStep: 0
+  _RayAngleStep: 0
+  _AngleBiasValue: 0
+  _AORadius: 0
   mode: 0
---- !u!81 &2084429445
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2084429443}
-  m_Enabled: 1
 --- !u!20 &2084429446
 Camera:
   m_ObjectHideFlags: 0

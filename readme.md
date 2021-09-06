@@ -515,11 +515,21 @@ float weight = smoothstep(0,0.2,length(randomVec.xy));
 
 ## 其他AO方案
 
+context refer:[Unity_GroundTruth-Oclusion](https://zhuanlan.zhihu.com/p/53097274)
+
 ### HBAO
 
-//TODO [(11条消息) Unity Shader-Ambient Occlusion环境光遮蔽（AO贴图，GPU AO贴图烘焙，SSAO，HBAO）_puppet_master的专栏-CSDN博客](https://blog.csdn.net/puppet_master/article/details/82929708)
+code refer:[(Unity Shader-Ambient Occlusion环境光遮蔽（AO贴图，GPU AO贴图烘焙，SSAO，HBAO）](https://blog.csdn.net/puppet_master/article/details/82929708)
+
+PPT:https://developer.download.nvidia.cn/presentations/2008/SIGGRAPH/HBAO_SIG08b.pdf
+
+HBAO是SSAO的一次升级，引入更精确的物理计算，HBAO的计算原理是在半球上以切片（Slice）为基础在深度（Depth）上进行遮挡计算，然后再以此为基础进行一个旋转操作来达到近似半球上的AO遮挡。
 
 ### GTAO
+
+code refer:[MaxwellGengYF/Unity-Ground-Truth-Ambient-Occlusion: A physically based screen space ambient occulsion post processing effect (github.com)](https://github.com/MaxwellGengYF/Unity-Ground-Truth-Ambient-Occlusion)
+
+GTAO对HBAO又进行了升级，在AO的Visibility项计算上新增了一个Cos Weight使得AO的遮蔽更加真实。
 
 ### 烘焙lightmap
 

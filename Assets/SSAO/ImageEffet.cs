@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HABOEFECT : MonoBehaviour
+public class ImageEffet : MonoBehaviour
 {
     public Shader _shader=null;
     private Material ssaoMaterial;
