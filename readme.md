@@ -503,6 +503,8 @@ float weight = smoothstep(0,0.2,length(randomVec.xy));
 
 //TODO [(11条消息) Unity Shader-Ambient Occlusion环境光遮蔽（AO贴图，GPU AO贴图烘焙，SSAO，HBAO）_puppet_master的专栏-CSDN博客](https://blog.csdn.net/puppet_master/article/details/82929708)
 
+### GTAO
+
 ### 烘焙lightmap
 
 可生成静态物体见的AO信息，通过Generate Lightmap UVs可以生成第二个纹理坐标数据以存储贴图信息
