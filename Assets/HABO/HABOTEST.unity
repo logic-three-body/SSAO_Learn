@@ -392,176 +392,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fecf2b559ea61904bad23adcce7ba135, type: 3}
---- !u!1 &1603756868
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1603756873}
-  - component: {fileID: 1603756872}
-  - component: {fileID: 1603756871}
-  - component: {fileID: 1603756870}
-  - component: {fileID: 1603756869}
-  m_Layer: 0
-  m_Name: Camera0
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1603756869
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1603756868}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 948f4100a11a5c24981795d21301da5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  volumeTrigger: {fileID: 1603756873}
-  volumeLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  stopNaNPropagation: 1
-  finalBlitToCameraTarget: 0
-  antialiasingMode: 0
-  temporalAntialiasing:
-    jitterSpread: 0.75
-    sharpness: 0.25
-    stationaryBlending: 0.95
-    motionBlending: 0.85
-  subpixelMorphologicalAntialiasing:
-    quality: 2
-  fastApproximateAntialiasing:
-    fastMode: 0
-    keepAlpha: 0
-  fog:
-    enabled: 1
-    excludeSkybox: 1
-  debugLayer:
-    lightMeter:
-      width: 512
-      height: 256
-      showCurves: 1
-    histogram:
-      width: 512
-      height: 256
-      channel: 3
-    waveform:
-      exposure: 0.12
-      height: 256
-    vectorscope:
-      size: 256
-      exposure: 0.12
-    overlaySettings:
-      linearDepth: 0
-      motionColorIntensity: 4
-      motionGridSize: 64
-      colorBlindnessType: 0
-      colorBlindnessStrength: 1
-  m_Resources: {fileID: 11400000, guid: d82512f9c8e5d4a4d938b575d47f88d4, type: 2}
-  m_ShowToolkit: 1
-  m_ShowCustomSorter: 1
-  breakBeforeColorGrading: 0
-  m_BeforeTransparentBundles: []
-  m_BeforeStackBundles: []
-  m_AfterStackBundles: []
---- !u!114 &1603756870
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1603756868}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 45d12b9795d7e684a9173cee44ff59ec, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _shader: {fileID: 4800000, guid: 6bbd1cf099629d94d97e0842c3a94ffd, type: 3}
-  aoStrength: 0.697
-  SampleKernelCount: 64
-  sampleKeneralRadius: 1.4
-  rangeStrength: 0.008
-  depthBiasValue: 0.0002
-  Nosie: {fileID: 2800000, guid: 1f318db70ff712645a05c0db50e74aa7, type: 3}
-  DownSample: 0
-  BlurRadius: 3
-  bilaterFilterStrength: 0.2
-  RandomVec: {x: 1, y: 1, z: 1}
-  isRandom: 0
-  mode: 0
---- !u!81 &1603756871
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1603756868}
-  m_Enabled: 1
---- !u!20 &1603756872
-Camera:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1603756868}
-  m_Enabled: 1
-  serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
-  m_projectionMatrixMode: 1
-  m_GateFitMode: 2
-  m_FOVAxisMode: 0
-  m_SensorSize: {x: 36, y: 24}
-  m_LensShift: {x: 0, y: 0}
-  m_FocalLength: 50
-  m_NormalizedViewPortRect:
-    serializedVersion: 2
-    x: 0
-    y: 0
-    width: 1
-    height: 1
-  near clip plane: 0.3
-  far clip plane: 200
-  field of view: 60
-  orthographic: 0
-  orthographic size: 5
-  m_Depth: 0
-  m_CullingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_RenderingPath: 3
-  m_TargetTexture: {fileID: 0}
-  m_TargetDisplay: 1
-  m_TargetEye: 3
-  m_HDR: 1
-  m_AllowMSAA: 1
-  m_AllowDynamicResolution: 0
-  m_ForceIntoRT: 0
-  m_OcclusionCulling: 1
-  m_StereoConvergence: 10
-  m_StereoSeparation: 0.022
---- !u!4 &1603756873
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1603756868}
-  m_LocalRotation: {x: -0.06095617, y: 0.36166206, z: 0.023704557, w: 0.9300124}
-  m_LocalPosition: {x: 23.5, y: 4, z: -23.5}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 12
-  m_LocalEulerAnglesHint: {x: -7.5, y: 42.5, z: 0}
 --- !u!1 &1774780231
 GameObject:
   m_ObjectHideFlags: 0
@@ -992,8 +822,8 @@ GameObject:
   - component: {fileID: 2084429447}
   - component: {fileID: 2084429446}
   - component: {fileID: 2084429445}
-  - component: {fileID: 2084429444}
   - component: {fileID: 2084429448}
+  - component: {fileID: 2084429444}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -1010,22 +840,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 2084429443}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 45d12b9795d7e684a9173cee44ff59ec, type: 3}
+  m_Script: {fileID: 11500000, guid: 14a1bfcd5c4b98a4daf2895a90bc256a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _shader: {fileID: 4800000, guid: d214f07112cb3ca48bd4da45cf960d5f, type: 3}
-  aoStrength: 0.7
+  _shader: {fileID: 4800000, guid: 4831a843c0f76c449907df24f180b7ae, type: 3}
+  aoStrength: 1
   SampleKernelCount: 64
-  sampleKeneralRadius: 1.4
-  rangeStrength: 0.008
-  depthBiasValue: 0.0002
+  sampleKeneralRadius: 3.06
+  rangeStrength: 0.001
+  depthBiasValue: 0
   Nosie: {fileID: 2800000, guid: 1f318db70ff712645a05c0db50e74aa7, type: 3}
   DownSample: 0
-  BlurRadius: 3
+  BlurRadius: 2
   bilaterFilterStrength: 0.2
-  RandomVec: {x: 1, y: 1, z: 1}
+  RandomVec: {x: 0, y: 0, z: 0}
   isRandom: 0
-  mode: 1
+  mode: 0
 --- !u!81 &2084429445
 AudioListener:
   m_ObjectHideFlags: 0
@@ -1098,7 +928,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2084429443}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 948f4100a11a5c24981795d21301da5c, type: 3}
   m_Name: 

@@ -394,7 +394,9 @@ randvec = tex2D(_NoiseTex,noiseUV).xyz;
 
 ![image-20210904165844884](https://i.loli.net/2021/09/04/YrBn6AEHtOxD7Gm.png)
 
-原因是如果随机样本在屏幕上对应为背景（天空）区域，深度值和当前着色点相差很大，可能会导致错误的遮挡关系
+原因是如果随机样本在屏幕上对应为背景（天空）区域，深度值和当前着色点相差很大，可能会导致错误的遮挡关系，再看下图，龙不该挡住远处的建筑，这也是SSAO经典问题
+
+![image-20210906221419081](https://i.loli.net/2021/09/06/kC5TqXyvPcuarDO.png)
 
 ```c
 float range = abs(randomDepth - linear01Depth) > _RangeStrength ? 0.0 : 1.0;//解决深度差过大（模型边界）
@@ -402,7 +404,9 @@ float range = abs(randomDepth - linear01Depth) > _RangeStrength ? 0.0 : 1.0;//�
 
 ![image-20210904201955772](https://i.loli.net/2021/09/04/Zoef6uASPT93san.png)
 
-此时模型边缘阴影问题消失了
+此时模型边缘阴影问题缓解了
+
+![image-20210906221841484](https://i.loli.net/2021/09/06/NsPUV1y54DMrBm9.png)
 
 ![image-20210904202544334](https://i.loli.net/2021/09/04/nuEScXNeFQgMvdP.png)
 
@@ -410,7 +414,9 @@ float range = abs(randomDepth - linear01Depth) > _RangeStrength ? 0.0 : 1.0;//�
 
 上图我们发现在一些墙面上出现了阴影，而同一平面不会有遮挡关系，这是由于随机点深度值和着色点深度很近，我们可以增加深度偏移
 
-![image-20210904203924922](https://i.loli.net/2021/09/04/d5N9KYCDwgbWArR.png)
+![image-20210906220558754](https://i.loli.net/2021/09/06/3omgaQNIuWEHFTb.png)
+
+![image-20210906220745365](https://i.loli.net/2021/09/06/AGzTjBupc4MLQn9.png)
 
 ```c
 float selfCheck = randomDepth + _DepthBiasValue < linear01Depth ? 1.0 : 0.0;//解决自阴影
@@ -419,6 +425,12 @@ float selfCheck = randomDepth + _DepthBiasValue < linear01Depth ? 1.0 : 0.0;//�
 ![image-20210904203953932](https://i.loli.net/2021/09/04/awpJ4fekA2LcroS.png)
 
 ![image-20210904204029173](https://i.loli.net/2021/09/04/KDFSaqxc35WnmjZ.png)
+
+![image-20210906221059618](https://i.loli.net/2021/09/06/duLiUcsjyqQlV2n.png)
+
+![image-20210906221014720](https://i.loli.net/2021/09/06/cQt67PTXCaID92w.png)
+
+深度值的把控也是一种取舍，如上较大的偏移虽然解决部分墙面自阴影问题，但龙上的遮蔽细节大打折扣
 
 #### AO权重平滑
 
@@ -488,6 +500,10 @@ float weight = smoothstep(0,0.2,length(randomVec.xy));
 ![image-20210904204445674](https://i.loli.net/2021/09/04/HpkOgmsV6TB7ydz.png)
 
 ## 对比
+
+法线
+
+![image-20210906215343099](https://i.loli.net/2021/09/06/2wO8lhieAdbJEt6.png)
 
 关闭SSAO（包含lightmap）
 
