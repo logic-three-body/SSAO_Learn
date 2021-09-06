@@ -485,7 +485,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _shader: {fileID: 4800000, guid: 6bbd1cf099629d94d97e0842c3a94ffd, type: 3}
-  aoStrength: 0.7
+  aoStrength: 0.697
   SampleKernelCount: 64
   sampleKeneralRadius: 1.4
   rangeStrength: 0.008
@@ -494,9 +494,9 @@ MonoBehaviour:
   DownSample: 0
   BlurRadius: 3
   bilaterFilterStrength: 0.2
-  OnlyShowAO: 1
   RandomVec: {x: 1, y: 1, z: 1}
   isRandom: 0
+  mode: 0
 --- !u!81 &1603756871
 AudioListener:
   m_ObjectHideFlags: 0
@@ -539,7 +539,7 @@ Camera:
     m_Bits: 4294967295
   m_RenderingPath: 3
   m_TargetTexture: {fileID: 0}
-  m_TargetDisplay: 0
+  m_TargetDisplay: 1
   m_TargetEye: 3
   m_HDR: 1
   m_AllowMSAA: 1
@@ -1000,7 +1000,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2084429444
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1013,7 +1013,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45d12b9795d7e684a9173cee44ff59ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _shader: {fileID: 0}
+  _shader: {fileID: 4800000, guid: d214f07112cb3ca48bd4da45cf960d5f, type: 3}
   aoStrength: 0.7
   SampleKernelCount: 64
   sampleKeneralRadius: 1.4
@@ -1023,9 +1023,9 @@ MonoBehaviour:
   DownSample: 0
   BlurRadius: 3
   bilaterFilterStrength: 0.2
-  OnlyShowAO: 1
   RandomVec: {x: 1, y: 1, z: 1}
   isRandom: 0
+  mode: 1
 --- !u!81 &2084429445
 AudioListener:
   m_ObjectHideFlags: 0

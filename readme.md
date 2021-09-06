@@ -489,7 +489,7 @@ float weight = smoothstep(0,0.2,length(randomVec.xy));
 
 ## 对比
 
-关闭SSAO
+关闭SSAO（包含lightmap）
 
 ![image-20210904204743764](https://i.loli.net/2021/09/04/2Tp95EDAuBOY3HC.png)
 
@@ -500,6 +500,8 @@ float weight = smoothstep(0,0.2,length(randomVec.xy));
 ## 其他AO方案
 
 ### HBAO
+
+//TODO [(11条消息) Unity Shader-Ambient Occlusion环境光遮蔽（AO贴图，GPU AO贴图烘焙，SSAO，HBAO）_puppet_master的专栏-CSDN博客](https://blog.csdn.net/puppet_master/article/details/82929708)
 
 ### 烘焙lightmap
 
