@@ -5,7 +5,7 @@ using UnityEngine;
 public class HABOEFECT : MonoBehaviour
 {
     public Shader _shader=null;
-    private Material ssaoMaterial;
+    private Material hbaoMaterial;
     private Camera cam;
     [Range(0f,1f)]
     public float aoStrength = 0f; 
@@ -62,9 +62,9 @@ public class HABOEFECT : MonoBehaviour
 
     private void Awake()
     {
-        var shader = Shader.Find("ImageEffect/SSAO");
+        var shader = Shader.Find("ImageEffect/HBAO");
         shader = _shader;
-        ssaoMaterial = new Material(shader);
+        hbaoMaterial = new Material(shader);
     }
 
     //获取深度&法线缓存数据
@@ -83,46 +83,46 @@ public class HABOEFECT : MonoBehaviour
 
         //AO
         RenderTexture aoRT = RenderTexture.GetTemporary(rtW,rtH,0);
-        ssaoMaterial.SetVectorArray("_SampleKernelArray", sampleKernelList.ToArray());
-        ssaoMaterial.SetFloat("_RangeStrength", rangeStrength);
-        ssaoMaterial.SetFloat("_AOStrength", aoStrength);
-        ssaoMaterial.SetFloat("_SampleKernelCount", sampleKernelList.Count);
-        ssaoMaterial.SetFloat("_SampleKeneralRadius",sampleKeneralRadius);
-        ssaoMaterial.SetFloat("_DepthBiasValue",depthBiasValue);
-        ssaoMaterial.SetFloat("_MaxPixelRadius", _MaxPixelRadius);
-        ssaoMaterial.SetFloat("_RayAngleStep", _RayAngleStep);
-        ssaoMaterial.SetFloat("_AngleBiasValue", _AngleBiasValue);
-        ssaoMaterial.SetFloat("_AORadius", _AORadius);
+        hbaoMaterial.SetVectorArray("_SampleKernelArray", sampleKernelList.ToArray());
+        hbaoMaterial.SetFloat("_RangeStrength", rangeStrength);
+        hbaoMaterial.SetFloat("_AOStrength", aoStrength);
+        hbaoMaterial.SetFloat("_SampleKernelCount", sampleKernelList.Count);
+        hbaoMaterial.SetFloat("_SampleKeneralRadius",sampleKeneralRadius);
+        hbaoMaterial.SetFloat("_DepthBiasValue",depthBiasValue);
+        hbaoMaterial.SetFloat("_MaxPixelRadius", _MaxPixelRadius);
+        hbaoMaterial.SetFloat("_RayAngleStep", _RayAngleStep);
+        hbaoMaterial.SetFloat("_AngleBiasValue", _AngleBiasValue);
+        hbaoMaterial.SetFloat("_AORadius", _AORadius);
 
-        ssaoMaterial.SetTexture("_NoiseTex", Nosie);
-        ssaoMaterial.SetVector("_randomVec", RandomVec);//传入随机向量      
-        ssaoMaterial.SetInt("_isRandom", isRandom);//决定使用随机分布产生随机向量还是使用自己调节的固定随机向量
-        Graphics.Blit(source, aoRT, ssaoMaterial,(int)SSAOPassName.GenerateAO);
+        hbaoMaterial.SetTexture("_NoiseTex", Nosie);
+        hbaoMaterial.SetVector("_randomVec", RandomVec);//传入随机向量      
+        hbaoMaterial.SetInt("_isRandom", isRandom);//决定使用随机分布产生随机向量还是使用自己调节的固定随机向量
+        Graphics.Blit(source, aoRT, hbaoMaterial,(int)SSAOPassName.GenerateAO);
         //Blur
         RenderTexture blurRT = RenderTexture.GetTemporary(rtW,rtH,0);
-        ssaoMaterial.SetFloat("_BilaterFilterFactor", 1.0f - bilaterFilterStrength);
-        ssaoMaterial.SetVector("_BlurRadius", new Vector4(BlurRadius, 0, 0, 0));
-        Graphics.Blit(aoRT, blurRT, ssaoMaterial, (int)SSAOPassName.BilateralFilter);
+        hbaoMaterial.SetFloat("_BilaterFilterFactor", 1.0f - bilaterFilterStrength);
+        hbaoMaterial.SetVector("_BlurRadius", new Vector4(BlurRadius, 0, 0, 0));
+        Graphics.Blit(aoRT, blurRT, hbaoMaterial, (int)SSAOPassName.BilateralFilter);
 
-        ssaoMaterial.SetVector("_BlurRadius", new Vector4(0, BlurRadius, 0, 0));
+        hbaoMaterial.SetVector("_BlurRadius", new Vector4(0, BlurRadius, 0, 0));
         if (DebugMode.ONLY_AO==mode)
         {
             Graphics.Blit(aoRT, destination);
         }
         else if(DebugMode.BLUR_AO == mode)
         {
-            Graphics.Blit(blurRT, destination, ssaoMaterial, (int)SSAOPassName.BilateralFilter);
+            Graphics.Blit(blurRT, destination, hbaoMaterial, (int)SSAOPassName.BilateralFilter);
         }
         else if(DebugMode.COMPLETE == mode)
         {
-            Graphics.Blit(blurRT, aoRT, ssaoMaterial, (int)SSAOPassName.BilateralFilter);
-            ssaoMaterial.SetTexture("_AOTex", aoRT);
-            Graphics.Blit(source, destination, ssaoMaterial, (int)SSAOPassName.Composite);
+            Graphics.Blit(blurRT, aoRT, hbaoMaterial, (int)SSAOPassName.BilateralFilter);
+            hbaoMaterial.SetTexture("_AOTex", aoRT);
+            Graphics.Blit(source, destination, hbaoMaterial, (int)SSAOPassName.Composite);
         }
         else
         {
-            ssaoMaterial.SetTexture("_AOTex", aoRT);
-            Graphics.Blit(source, destination, ssaoMaterial, (int)SSAOPassName.Composite);
+            hbaoMaterial.SetTexture("_AOTex", aoRT);
+            Graphics.Blit(source, destination, hbaoMaterial, (int)SSAOPassName.Composite);
         }
 
         RenderTexture.ReleaseTemporary(aoRT);

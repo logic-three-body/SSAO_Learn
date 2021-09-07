@@ -308,6 +308,7 @@ Shader "ImageEffect/HBAO"
 		oc = 1.0 - oc;
  
 		col.rgb = oc;
+		//return float4(1.0,1.0,1.0,1.0);
 		return col;
 	}
 	ENDCG
