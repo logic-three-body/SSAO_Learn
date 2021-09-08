@@ -541,17 +541,69 @@ Unity后处理组件中的后处理组件对SSAO进行了增强，有Scalable Am
 
 官方源码地址：[PostProcessing/PostProcessing/Shaders/Builtins at v2 · Unity-Technologies/PostProcessing (github.com)](https://github.com/Unity-Technologies/PostProcessing/tree/v2/PostProcessing/Shaders/Builtins)
 
+官方文档：[Ambient Occlusion | Package Manager UI website (unity3d.com)](https://docs.unity3d.com/Packages/com.unity.postprocessing@2.1/manual/Ambient-Occlusion.html)
+
 说明：下方输出AO的方式采用**Post-Process Debug**组件
 
 ![image-20210908215239355](https://i.loli.net/2021/09/08/fz9CcUZj5GrtVKe.png)
 
 ### Scalable Ambient Obscurance
 
+过强的AO强度会导致带状区域的出现（这在接下来讨论的几个AO方法中也会出现）
 
+![image-20210908221447809](https://i.loli.net/2021/09/08/U91MxLjBPmZoFY4.png)
+
+过大的AO半径则会导致严重错误的遮挡关系
+
+![image-20210908222206849](https://i.loli.net/2021/09/08/6vReLgam8fT97XG.png)
+
+![image-20210908222219794](https://i.loli.net/2021/09/08/ZK4MbsxF8OnpvlI.png)
+
+调节较为合适的参数如下：
+
+![image-20210908222554734](https://i.loli.net/2021/09/08/XYvfj4OTt89rdhq.png)
+
+
+
+<video src=".\Vedio\SAO漫游.mp4"></video>
+
+![image-20210908223236798](https://i.loli.net/2021/09/08/Sja6m38PRiTFL4r.png)
+
+![image-20210908223326871](https://i.loli.net/2021/09/08/SLT8p5bo6yfWNU9.png)
+
+![image-20210908223351612](https://i.loli.net/2021/09/08/TfHQGXuxKACEJir.png)
+
+![image-20210908223533551](https://i.loli.net/2021/09/08/Q1T9LqdKPeWClaX.png)
+
+![image-20210908223557372](https://i.loli.net/2021/09/08/HYvCpPrSOuGBUjQ.png)
+
+![image-20210908223426192](https://i.loli.net/2021/09/08/lUAfa4W3e1vXV6O.png)
 
 ### Multi Scale Volumetric Obscurance
 
+Thickness Modifier：修改遮挡器的厚度。这会增加黑暗区域，但会在物体周围引入暗晕
 
+![image-20210908224722563](https://i.loli.net/2021/09/08/yEtVLrovs1wazRg.png)
+
+![image-20210908224803882](https://i.loli.net/2021/09/08/Rm7Sil5HohGIayA.png)
+
+直观上感觉MSVO比SAO计算量大，因为在运动中有抖动现象，同时感觉MSVO比SAO过渡更柔和
+
+<video src=".\Vedio\SAO漫游.mp4"></video>
+
+<video src=".\Vedio\MSVO漫游2.mp4"></video>
+
+![image-20210908225505013](https://i.loli.net/2021/09/08/qnDfpEOLzlxK8a9.png)
+
+![image-20210908225408497](https://i.loli.net/2021/09/08/ayHVoxfYBrGDjFA.png)
+
+![image-20210908225436922](https://i.loli.net/2021/09/08/hMIJXQ2b4qmV7LS.png)
+
+![image-20210908225708345](https://i.loli.net/2021/09/08/Nfk6n8ryDQw5Xv9.png)
+
+![image-20210908225641016](https://i.loli.net/2021/09/08/KMBzEgQ2OFdP6Ww.png)
+
+![image-20210908225734286](https://i.loli.net/2021/09/08/lnpDKM3VSwifNz9.png)
 
 ## 其他AO方案
 
