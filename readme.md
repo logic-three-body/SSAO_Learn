@@ -1,5 +1,7 @@
 # 4.2 SSAO
 
+项目地址：[Graphic-researcher/UnityCrytekSponza-master2019 (github.com)](https://github.com/Graphic-researcher/UnityCrytekSponza-master2019)
+
 ## 理论
 
 ### 基础
@@ -513,9 +515,45 @@ float weight = smoothstep(0,0.2,length(randomVec.xy));
 
 ![image-20210904204838364](https://i.loli.net/2021/09/04/W6V32iKSNajgFBh.png)
 
-## 其他AO方案
+## 复杂场景里的SSAO
 
-context refer:[Unity_GroundTruth-Oclusion](https://zhuanlan.zhihu.com/p/53097274)
+参数设置（未模糊AO），有两次开关AO操作
+
+![image-20210908142538887](https://i.loli.net/2021/09/08/z9sp8jLb4qDBI5f.png)
+
+<video src=".\Vedio\SSAO漫游.mp4"></video>
+
+<video src=".\Vedio\SSAO滤波漫游.mp4"></video>
+
+滤波后AO会平滑一些（这里个人看了一些文章后有一些观点，SSAO是工业上的一种近似，所以输出的物理结果并不会十分理想（不像离线渲染是实实在在地计算光线和物体），滤波这种消除噪声的操作也可以理解为缓解错误结果的办法）
+
+![image-20210908143456583](https://i.loli.net/2021/09/08/asV7UJRIqdPlMOX.png)
+
+![image-20210908143536071](https://i.loli.net/2021/09/08/OPGRnoD47ca9E8x.png)
+
+## Unity Post Processing AO
+
+Unity后处理组件中的后处理组件对SSAO进行了增强，有Scalable Ambient Obscurance和Multi Scale Volumetric Obscurance，两者相对SSAO的法线半球采样采用了更优方法，具体可阅读下方链接。
+
+学习链接：[Scalable Ambient Obscurance - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/202622927)
+
+[shader复习与深入:Screen Space Ambient Occlusion(屏幕空间环境光遮蔽)-腾讯游戏学院 (qq.com)](https://gameinstitute.qq.com/community/detail/108633)
+
+官方源码地址：[PostProcessing/PostProcessing/Shaders/Builtins at v2 · Unity-Technologies/PostProcessing (github.com)](https://github.com/Unity-Technologies/PostProcessing/tree/v2/PostProcessing/Shaders/Builtins)
+
+说明：下方输出AO的方式采用**Post-Process Debug**组件
+
+![image-20210908215239355](https://i.loli.net/2021/09/08/fz9CcUZj5GrtVKe.png)
+
+### Scalable Ambient Obscurance
+
+
+
+### Multi Scale Volumetric Obscurance
+
+
+
+## 其他AO方案
 
 ### HBAO
 
@@ -523,13 +561,17 @@ code refer:[(Unity Shader-Ambient Occlusion环境光遮蔽（AO贴图，GPU AO�
 
 PPT:https://developer.download.nvidia.cn/presentations/2008/SIGGRAPH/HBAO_SIG08b.pdf
 
-HBAO是SSAO的一次升级，引入更精确的物理计算，HBAO的计算原理是在半球上以切片（Slice）为基础在深度（Depth）上进行遮挡计算，然后再以此为基础进行一个旋转操作来达到近似半球上的AO遮挡。
+学习链接：[HBAO(屏幕空间的环境光遮蔽) - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/103683536)
+
+HBAO是SSAO的升级
 
 ### GTAO
 
 code refer:[MaxwellGengYF/Unity-Ground-Truth-Ambient-Occlusion: A physically based screen space ambient occulsion post processing effect (github.com)](https://github.com/MaxwellGengYF/Unity-Ground-Truth-Ambient-Occlusion)
 
-GTAO对HBAO又进行了升级，在AO的Visibility项计算上新增了一个Cos Weight使得AO的遮蔽更加真实。
+学习链接：[UE4 Mobile GTAO 实现(HBAO续) - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/145339736)
+
+GTAO是HBAO的升级
 
 ### 烘焙lightmap
 
