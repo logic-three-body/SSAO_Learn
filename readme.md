@@ -617,7 +617,7 @@ PPT:https://developer.download.nvidia.cn/presentations/2008/SIGGRAPH/HBAO_SIG08b
 
 HBAO（Image-space horizon-based ambient occlusion）是SSAO的改进，通过以下步骤进行AO：
 
-1.对屏幕上一点像素P，分四方向进行光线步进（Ray Marching）
+1.对屏幕上一点像素P，分四方向进行光线步进（Ray Marching），每一个像素不能用相同的四个方向，所以要在方向上旋转一个随机角度
 
 2.对其任意一方向得到一维高度场，在此方向步进（Marching）得到最大水平角（Horizon angle）
 
@@ -638,10 +638,150 @@ HBAO（Image-space horizon-based ambient occlusion）是SSAO的改进，通过�
 2.ao值相差过大问题，在SSAO中也遇到过，直接输出AO值会导致周围几个AO值差过大，对比度太强，阴影过硬，可以用以下衰减公式解决
 
 ```c
-ao = saturate(1.0 - ao);//衰减公式,解决AO差值过大的不连续问题
+ao = saturate(1.0 - ao);//衰减,解决AO差值过大的不连续问题
 ```
 
-3.噪点，可以用模糊解决，同理SSAO
+3.随机噪点，可以用模糊解决，同理SSAO
+
+不模糊噪点时分明显
+
+![image-20210909120301899](https://i.loli.net/2021/09/09/cD1fz3dMAIQH26N.png)
+
+模糊后：
+
+![image-20210909120353521](https://i.loli.net/2021/09/09/b84UMwQxGVHSvrf.png)
+
+#### 相关代码
+
+```c
+half4 frag_ao(v2f i, UNITY_VPOS_TYPE screenPos : VPOS) : SV_Target {	
+	//float3 P = FetchViewPos(i.uv2,depthNormal.zw);
+	float3 P = FetchViewPos(i.uv2);//当前点
+
+	clip(_MaxDistance - P.z);
+	
+	float stepSize = min((_AORadius / P.z), 128) / (STEPS + 1.0);//光线步进步长
+
+	// (cos(alpha), sin(alpha), jitter)
+	float3 rand = tex2D(_NoiseTex, screenPos.xy / 4.0).rgb;
+
+	float2 InvScreenParams = _ScreenParams.zw - 1.0;
+	
+#if NORMALS_RECONSTRUCT
+		float3 Pr, Pl, Pt, Pb;
+		Pr = FetchViewPos(i.uv2 + float2(InvScreenParams.x, 0));
+		Pl = FetchViewPos(i.uv2 + float2(-InvScreenParams.x, 0));
+		Pt = FetchViewPos(i.uv2 + float2(0, InvScreenParams.y));
+		Pb = FetchViewPos(i.uv2 + float2(0, -InvScreenParams.y));
+		float3 N = normalize(cross(MinDiff(P, Pr, Pl), MinDiff(P, Pt, Pb)));
+#else
+	float4 normal = tex2D(_NormalBufferTex, i.uv2);
+	float3 N = DecodeNormal(normal.xy);
+	//float3 N = mul((float3x3)(UNITY_MATRIX_I_V),viewNormal);	
+	//float3 N = normal * 2 - 1;
+#endif	
+
+	N = float3(N.x, -N.yz);
+
+	float ao = 0;
+
+	UNITY_UNROLL
+	for (int d = 0; d < DIRECTIONS; ++d) {//对各方向
+		float2 direction = RotateDirections(Directions[d], rand.xy);//随机旋转角度
+
+		// Jitter starting sample within the first step
+		float rayPixels = (rand.z * stepSize + 1.0);
+
+		UNITY_UNROLL
+		for (int s = 0; s < STEPS; ++s) {//进行光线步进
+
+			float2 snappedUV = round(rayPixels * direction) * InvScreenParams  + i.uv2;
+			
+			//float4 depthNormal2 = tex2D(_CameraDepthNormalsTexture, snappedUV);
+			
+			//float3 S = FetchViewPos(snappedUV,depthNormal2.zw);
+			float3 S = FetchViewPos(snappedUV);
+
+			rayPixels += stepSize;
+
+			float contrib = ComputeAO(P, N, S);
+			ao += contrib;
+
+		}
+	}
+		
+	ao *= (_AOmultiplier / (STEPS * DIRECTIONS));
+
+	ao = saturate(1.0 - ao);//衰减公式,解决AO差值过大的不连续问题
+	
+	return half4(ao, 0,0,1);
+}
+```
+
+```c
+//分四个方向步进
+#define DIRECTIONS		4
+//光线步进次数
+#define STEPS			3
+static const float2 Directions[8] = {
+    float2(1,0),
+    float2(-0.5000001,0.8660254),
+    float2(-0.4999999,-0.8660254),
+	float2(0,1),	
+};
+
+half3 DecodeNormal (half2 enc)
+{
+    half2 fenc = enc*4-2;
+    half f = dot(fenc,fenc);
+    half g = sqrt(1-f/4);
+    half3 n;
+    n.xy = fenc*g;
+    n.z = 1-f/2;
+    return n;
+}
+
+
+//inline float3 FetchViewPos(float2 uv,float2 depth) {	
+//	float z = DecodeFloatRG (depth) * _ProjectionParams.z;
+//	return float3((uv * _UVToView.xy + _UVToView.zw) * z, z);
+//}
+
+inline float3 FetchViewPos(float2 uv) {	
+	float z = DECODE_EYEDEPTH(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv));
+	return float3((uv * _UVToView.xy + _UVToView.zw) * z, z);
+}
+
+
+inline float Falloff(float distanceSquare) {
+	// 1 scalar mad instruction
+	return distanceSquare * _NegInvRadius2 + 1.0;
+}
+
+inline float ComputeAO(float3 P, float3 N, float3 S) {
+	float3 V = S - P;
+	float VdotV = dot(V, V);
+	VdotV = clamp(VdotV,0.01,10000); // fixed precision
+	float NdotV = dot(N, V) * rsqrt(VdotV);
+
+	//return saturate(Falloff(VdotV));
+	// Use saturate(x) instead of max(x,0.f) because that is faster on Kepler
+	return saturate(NdotV - _AngleBias) * saturate(Falloff(VdotV));
+}
+
+inline float3 MinDiff(float3 P, float3 Pr, float3 Pl) {
+	float3 V1 = Pr - P;
+	float3 V2 = P - Pl;
+	return (dot(V1, V1) < dot(V2, V2)) ? V1 : V2;
+}
+
+inline float2 RotateDirections(float2 dir, float2 rot) {
+	return float2(dir.x * rot.x - dir.y * rot.y,
+					dir.x * rot.y + dir.y * rot.x);
+}
+```
+
+
 
 ### GTAO
 
