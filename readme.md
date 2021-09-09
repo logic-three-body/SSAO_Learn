@@ -609,17 +609,29 @@ Thickness Modifier：修改遮挡器的厚度。这会增加黑暗区域，但�
 
 ### HBAO
 
-code refer:[(Unity Shader-Ambient Occlusion环境光遮蔽（AO贴图，GPU AO贴图烘焙，SSAO，HBAO）](https://blog.csdn.net/puppet_master/article/details/82929708)
+code refer:[UnityCrytekSponza-master2019/Hbao.shader at master · lync-li/UnityCrytekSponza-master2019 (github.com)](https://github.com/lync-li/UnityCrytekSponza-master2019/blob/master/Assets/Render/Shader/PostProcessShader/Hbao.shader)
 
 PPT:https://developer.download.nvidia.cn/presentations/2008/SIGGRAPH/HBAO_SIG08b.pdf
 
 学习链接：[HBAO(屏幕空间的环境光遮蔽) - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/103683536)
 
-HBAO是SSAO的升级
+HBAO（Image-space horizon-based ambient occlusion）是SSAO的改进，通过以下步骤进行AO：
+
+1.对屏幕上一点像素P，分四方向进行光线步进（Ray Marching）
+
+2.对其任意一方向得到一维高度场，在此方向步进（Marching）得到最大水平角（Horizon angle）
+
+3.根据点P和法线N求切面角（tangent angle）
+
+4.通过2,3得到的水平角和切面角，利用计算公式【AO(θ)=sin horizon(θ)-sin tangent(θ)】求出AO值
+
+5.对剩下3方向做同样操作，得到点P四方形上(2D)AO值,相加后取平均得最终AO值
 
 ### GTAO
 
 code refer:[MaxwellGengYF/Unity-Ground-Truth-Ambient-Occlusion: A physically based screen space ambient occulsion post processing effect (github.com)](https://github.com/MaxwellGengYF/Unity-Ground-Truth-Ambient-Occlusion)
+
+PPT：https://iryoku.com/downloads/Practical-Realtime-Strategies-for-Accurate-Indirect-Occlusion.pdf
 
 学习链接：[UE4 Mobile GTAO 实现(HBAO续) - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/145339736)
 
@@ -634,6 +646,10 @@ GTAO是HBAO的升级
 ![image-20210904205423265](https://i.loli.net/2021/09/04/kBivugwIZrKcT87.png)
 
 ![image-20210904205010036](https://i.loli.net/2021/09/04/ANf1cP5rZGJUejh.png)
+
+## 总结
+
+实时的AO物理的正确性较差，但对采样方式以及对周围采样区域的计算方式的优化可以提升直观的视觉体验或者生成AO的速度，相对于静态烘焙的AO，实时AO有了更好的交互，但是随着人物和周围建筑距离的变化，AO的误差也会增加，造成AO区域的抖动或整个场景过暗情况。
 
 ## 备注
 
