@@ -781,7 +781,23 @@ inline float2 RotateDirections(float2 dir, float2 rot) {
 }
 ```
 
+#### 结果
 
+![image-20210909164730092](https://i.loli.net/2021/09/09/Peps57iWxvlRfS2.png)
+
+<video src=".\Vedio\HBAO漫游.mp4"></video>
+
+![image-20210909165218778](https://i.loli.net/2021/09/09/wQhgSoCrMZBcqsL.png)
+
+![image-20210909165404135](https://i.loli.net/2021/09/09/iFcxA795mQvt6Vs.png)
+
+![image-20210909165438982](https://i.loli.net/2021/09/09/swGqQKJBl6bvdXU.png)
+
+![image-20210909165724541](https://i.loli.net/2021/09/09/kFnI9SMQo2LP1G6.png)
+
+![image-20210909165642972](https://i.loli.net/2021/09/09/XpaUQdqnJPrRLN5.png)
+
+![image-20210909165619100](https://i.loli.net/2021/09/09/TdM3lq4XJgseOrF.png)
 
 ### GTAO
 
