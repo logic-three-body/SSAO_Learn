@@ -627,6 +627,22 @@ HBAO（Image-space horizon-based ambient occlusion）是SSAO的改进，通过�
 
 5.对剩下3方向做同样操作，得到点P四方形上(2D)AO值,相加后取平均得最终AO值
 
+#### HBAO问题：
+
+1.带状不连续问题（在SAO部分出现的那个问题），通过给切线角增加一个偏移量可以解决
+
+![image-20210909115253617](https://i.loli.net/2021/09/09/yxej9BL3g8HtvOz.png)
+
+![image-20210909115323837](https://i.loli.net/2021/09/09/rEHqJeQtUhkbG6d.png)![image-20210909115324069](https://i.loli.net/2021/09/09/rEHqJeQtUhkbG6d.png)
+
+2.ao值相差过大问题，在SSAO中也遇到过，直接输出AO值会导致周围几个AO值差过大，对比度太强，阴影过硬，可以用以下衰减公式解决
+
+```c
+ao = saturate(1.0 - ao);//衰减公式,解决AO差值过大的不连续问题
+```
+
+3.噪点，可以用模糊解决，同理SSAO
+
 ### GTAO
 
 code refer:[MaxwellGengYF/Unity-Ground-Truth-Ambient-Occlusion: A physically based screen space ambient occulsion post processing effect (github.com)](https://github.com/MaxwellGengYF/Unity-Ground-Truth-Ambient-Occlusion)
