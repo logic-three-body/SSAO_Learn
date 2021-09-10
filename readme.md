@@ -947,19 +947,35 @@ for (int i = 0; i < NumCircle; i++)
 
 #### 结果
 
-### 烘焙lightmap
+(AO切换RO切换BentNormal，最后对比合成图片)
 
-可生成静态物体见的AO信息，通过Generate Lightmap UVs可以生成第二个纹理坐标数据以存储贴图信息
+![image-20210910163043551](https://i.loli.net/2021/09/10/QZVwG9M5cr2NCWK.png)
 
-当然代价是游戏场景要储存额外的贴图信息，以空间换取时间效率
+<video src=".\Vedio\GTAO漫游.mp4"></video>
 
-![image-20210904205423265](https://i.loli.net/2021/09/04/kBivugwIZrKcT87.png)
+![image-20210910162720855](https://i.loli.net/2021/09/10/MJGtQmOIKLE23ao.png)
 
-![image-20210904205010036](https://i.loli.net/2021/09/04/ANf1cP5rZGJUejh.png)
+![image-20210910162757144](https://i.loli.net/2021/09/10/huzrFdBLiUgVX26.png)
+
+![image-20210910162826131](https://i.loli.net/2021/09/10/gJxNHtlDqLRS5au.png)
+
+![image-20210910163134385](https://i.loli.net/2021/09/10/lcRQU5PenijvDNI.png)
+
+![image-20210910163228797](https://i.loli.net/2021/09/10/ay8ReOSdbjp9uCP.png)
+
+![image-20210910163648638](https://i.loli.net/2021/09/10/4yvoYCSLfObnjmQ.png)
+
+![image-20210910163627769](https://i.loli.net/2021/09/10/k9MK1Y3S8myE7Rg.png)
+
+![image-20210910163530221](https://i.loli.net/2021/09/10/uQdSDF3rI658yUa.png)
+
+![image-20210910163457222](https://i.loli.net/2021/09/10/MT2HPQtaZ4x3Wmw.png)
+
+![image-20210910163428100](https://i.loli.net/2021/09/10/swRrGHumZfKqtBE.png)
 
 ## 总结
 
-实时的AO物理的正确性较差，但对采样方式以及对周围采样区域的计算方式的优化可以提升直观的视觉体验或者生成AO的速度，相对于静态烘焙的AO，实时AO有了更好的交互，但是随着人物和周围建筑距离的变化，AO的误差也会增加，造成AO区域的抖动或整个场景过暗情况。
+实时的AO物理的正确性较差，但对采样方式以及对周围采样区域的计算方式的优化可以提升直观的视觉体验或者生成AO的速度，相对于静态烘焙的AO，实时AO有了更好的交互，但是随着人物和周围建筑距离的变化，AO的误差也可能增加，造成AO区域的抖动或整个场景过暗情况。
 
 ## 备注
 
