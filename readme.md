@@ -651,7 +651,7 @@ ao = saturate(1.0 - ao);//衰减,解决AO差值过大的不连续问题
 
 ![image-20210909120353521](https://i.loli.net/2021/09/09/b84UMwQxGVHSvrf.png)
 
-#### 相关代码
+#### 核心代码
 
 ```c
 half4 frag_ao(v2f i, UNITY_VPOS_TYPE screenPos : VPOS) : SV_Target {	
@@ -807,7 +807,122 @@ PPT：https://iryoku.com/downloads/Practical-Realtime-Strategies-for-Accurate-In
 
 学习链接：[UE4 Mobile GTAO 实现(HBAO续) - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/145339736)
 
-GTAO是HBAO的升级
+[Unity_GroundTruth-Oclusion - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/53097274)
+
+[实时渲染器开发(四) GTAO原理与实践 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/342210503)
+
+GTAO（**GroundTruth-Oclusion**）在HBAO基础上增加余弦项Cosine Weight操作使AO计算的物理性更精准，同时还增加了AO的MutiBounce弹射效果。另外，在AO基础上增加了RO（ReflectionOcclusion）。可以利用双边滤波，Temporal滤波来优化最终AO。
+
+#### 部分核心步骤
+
+##### Cosine Weight
+
+
+
+```c
+half IntegrateArc_CosWeight(half2 h, half n)//计算余弦项
+{
+    half2 Arc = -cos(2 * h - n) + cos(n) + 2 * h * sin(n);
+    return 0.25 * (Arc.x + Arc.y);
+}
+```
+
+##### Bent Normal
+
+
+
+```c
+//利用h1和h2和viewDir构建一个坐标系去推算出BentAngle以重建BentNormal
+bentAngle = (h.x + h.y) * 0.5;//average both horizon angles
+BentNormal += viewDir * cos(bentAngle) - tangent * sin(bentAngle);
+```
+
+##### Multi-Bounce
+
+
+
+```c
+inline half3 MultiBounce(half AO, half3 Albedo)
+{
+	half3 A = 2 * Albedo - 0.33;
+	half3 B = -4.8 * Albedo + 0.64;
+	half3 C = 2.75 * Albedo + 0.69;
+	return max(AO, ((AO * A + B) * AO + C) * AO);
+}
+```
+
+##### RO
+
+
+
+```c
+//计算RO
+inline half ReflectionOcclusion(half3 BentNormal, half3 ReflectionVector, half Roughness, half OcclusionStrength)
+{
+	half BentNormalLength = length(BentNormal);
+	half ReflectionConeAngle = max(Roughness, 0.1) * PI;
+	half UnoccludedAngle = BentNormalLength * PI * OcclusionStrength;
+
+	half AngleBetween = acos(dot(BentNormal, ReflectionVector) / max(BentNormalLength, 0.001));
+	half ReflectionOcclusion = ApproximateConeConeIntersection(ReflectionConeAngle, UnoccludedAngle, AngleBetween);//BentNormal作为VisibilityCone去和SpecularCone求交得到ReflectionOcclusion
+	ReflectionOcclusion = lerp(0, ReflectionOcclusion, saturate((UnoccludedAngle - 0.1) / 0.2));
+	return ReflectionOcclusion;
+}
+
+inline half ReflectionOcclusion_Approch(half NoV, half Roughness, half AO)
+{
+	return saturate(pow(NoV + AO, Roughness * Roughness) - 1 + AO);
+}
+```
+
+##### AO
+
+
+
+```c
+for (int i = 0; i < NumCircle; i++)
+{
+    angle = (i + noiseDirection + _AO_TemporalDirections) * (UNITY_PI / (half)NumCircle);
+    sliceDir = half3(half2(cos(angle), sin(angle)), 0);
+    slideDir_TexelSize = sliceDir.xy * _AO_RT_TexelSize.xy;
+    h = -1;
+
+    for (int j = 0; j < NumSlice; j++)
+    {
+        uvOffset = slideDir_TexelSize * max(stepRadius * (j + initialRayStep), 1 + j);
+        uvSlice = uv.xyxy + float4(uvOffset.xy, -uvOffset);
+
+        ds = GetPosition(uvSlice.xy) - vPos;
+        dt = GetPosition(uvSlice.zw) - vPos;
+
+        dsdt = half2(dot(ds, ds), dot(dt, dt));
+        dsdtLength = rsqrt(dsdt);
+
+        falloff = saturate(dsdt.xy * (2 / pow2(radius)));
+
+        H = half2(dot(ds, viewDir), dot(dt, viewDir)) * dsdtLength;
+        h.xy = (H.xy > h.xy) ? lerp(H, h, falloff) : lerp(H.xy, h.xy, thickness);
+    }
+
+    planeNormal = normalize(cross(sliceDir, viewDir));
+    tangent = cross(viewDir, planeNormal);
+    projectedNormal = viewNormal - planeNormal * dot(viewNormal, planeNormal);
+    projLength = length(projectedNormal);
+
+    cos_n = clamp(dot(normalize(projectedNormal), viewDir), -1, 1);
+    n = -sign(dot(projectedNormal, tangent)) * acos(cos_n);
+
+    h = acos(clamp(h, -1, 1));
+    h.x = n + max(-h.x - n, -UNITY_HALF_PI);
+    h.y = n + min(h.y - n, UNITY_HALF_PI);
+
+    //利用h1和h2和viewDir构建一个坐标系去推算出BentAngle以重建BentNormal
+    bentAngle = (h.x + h.y) * 0.5;//average both horizon angles
+
+    BentNormal += viewDir * cos(bentAngle) - tangent * sin(bentAngle);
+    Occlusion += projLength * IntegrateArc_CosWeight(h, n);	
+}
+```
 
 ### 烘焙lightmap
 
