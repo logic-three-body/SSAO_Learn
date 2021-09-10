@@ -817,7 +817,7 @@ GTAO（**GroundTruth-Oclusion**）在HBAO基础上增加余弦项Cosine Weight�
 
 ##### Cosine Weight
 
-
+![image-20210910141223335](https://i.loli.net/2021/09/10/plu7sCfYoRdbWcT.png)
 
 ```c
 half IntegrateArc_CosWeight(half2 h, half n)//计算余弦项
@@ -829,7 +829,7 @@ half IntegrateArc_CosWeight(half2 h, half n)//计算余弦项
 
 ##### Bent Normal
 
-
+![image-20210910142142248](https://i.loli.net/2021/09/10/WdLPOHKec1a8oyC.png)
 
 ```c
 //利用h1和h2和viewDir构建一个坐标系去推算出BentAngle以重建BentNormal
@@ -839,7 +839,7 @@ BentNormal += viewDir * cos(bentAngle) - tangent * sin(bentAngle);
 
 ##### Multi-Bounce
 
-
+近似全局光照
 
 ```c
 inline half3 MultiBounce(half AO, half3 Albedo)
@@ -853,9 +853,17 @@ inline half3 MultiBounce(half AO, half3 Albedo)
 
 ##### RO
 
-
+![image-20210910143144523](https://i.loli.net/2021/09/10/Zug6DbkywsOWNdl.png)
 
 ```c
+inline float ApproximateConeConeIntersection(float ArcLength0, float ArcLength1, float AngleBetweenCones)
+{
+	float AngleDifference = abs(ArcLength0 - ArcLength1);
+
+	float Intersection = smoothstep(0, 1, 1 - saturate((AngleBetweenCones - AngleDifference) / (ArcLength0 + ArcLength1 - AngleDifference)));
+
+	return Intersection;
+}
 //计算RO
 inline half ReflectionOcclusion(half3 BentNormal, half3 ReflectionVector, half Roughness, half OcclusionStrength)
 {
@@ -868,16 +876,29 @@ inline half ReflectionOcclusion(half3 BentNormal, half3 ReflectionVector, half R
 	ReflectionOcclusion = lerp(0, ReflectionOcclusion, saturate((UnoccludedAngle - 0.1) / 0.2));
 	return ReflectionOcclusion;
 }
-
-inline half ReflectionOcclusion_Approch(half NoV, half Roughness, half AO)
-{
-	return saturate(pow(NoV + AO, Roughness * Roughness) - 1 + AO);
-}
 ```
 
 ##### AO
 
+将整个半球面用极坐标系表示，沿着观察方向，将半球面按照角度变化进行切片：
 
+在每个切面上，寻找两端未被遮挡住的角度，称为水平角（horizonal angle)，计算每个切片上的AO值，再将所有切片上的结果进行积分。
+
+![image-20210910144010834](https://i.loli.net/2021/09/10/oyhUrW2Yj1FQmtI.png)
+
+在切片上寻找水平角的过程，通常是沿着某个方向采样深度值，得到最大水平角。
+
+![image-20210910144245271](https://i.loli.net/2021/09/10/xBKm4wkDt9ej6cg.png)
+
+限制（clamp）水平角范围。
+
+![image-20210910144152095](https://i.loli.net/2021/09/10/GfrQPNmUoEOM5Sj.png)
+
+得到每个切面上的两个最大水平角后，就可以在切面上进行积分，计算当前切面上的AO值。（Cosine Weighting）。
+
+将物体表面的法线投影到切面(选取切面时，可以加上一些噪声，这样每个点选取的切面都有变化，来实现降噪的目的)。
+
+![image-20210910144130842](https://i.loli.net/2021/09/10/obfsFRHTYBxjtJ5.png)
 
 ```c
 for (int i = 0; i < NumCircle; i++)
@@ -923,6 +944,8 @@ for (int i = 0; i < NumCircle; i++)
     Occlusion += projLength * IntegrateArc_CosWeight(h, n);	
 }
 ```
+
+#### 结果
 
 ### 烘焙lightmap
 
