@@ -1,5 +1,7 @@
 # 4.2 SSAO
 
+博客链接：[SSAO](https://www.yuque.com/6527chen/ldyt32/sh3p6g)
+
 项目地址：[Graphic-researcher/UnityCrytekSponza-master2019 (github.com)](https://github.com/Graphic-researcher/UnityCrytekSponza-master2019)
 
 ## 理论
